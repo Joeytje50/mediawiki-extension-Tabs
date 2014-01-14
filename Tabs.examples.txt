@@ -1,9 +1,24 @@
+== Togglebox basics ==
+=== Plain togglebox ===
 <tab>
 This is the simplest togglebox, with just a tab tag without any attributes, surrounding this text.
 
 Its label will switch between the value of [[MediaWiki:tabs-toggle-open-placeholder]] and [[MediaWiki:tabs-toggle-close-placeholder]].
 </tab>
 
+=== Collapsed togglebox ===
+<tab openname="Open this tab" closename="Close this tab" name="you won't see this" collapsed>
+This togglebox demonstrates the use of openname and closename attributes, and has a ''collapsed'' attribute.<br/>
+It also has a defined name attribute, which is not used, since the open/closename attributes are defined.
+</tab>
+
+=== Further attributes ===
+<tab name="Open/close" index="1" title="The title attribute works too." container="background:#ABCDEF;padding:0;">This togglebox has a name, container and title attribute, as well as an index attribute. The index attribute has no purpose in unnested tab tags though, so that is ignored.</tab>
+
+Here you can see an inline togglebox. <tab inline collapsed>It just shows up out of thin air!</tab> This togglebox has an ''inline'' and a ''collapsed'' attribute assigned to it.
+
+== Tabbox basics ==
+=== Index and name attributes ===
 <tabs style="font-weight:bold;" class="foo" id="bar">
 <tab name="hello">
 Tab 1 is a named tab without specified index.
@@ -27,9 +42,10 @@ This is another tab tag, but has a specified ''name'' of equal to the third tab'
 This bottom text always shows, since it's not placed within a tab tag. This parent ''tabs'' tag is also a demonstration of the style, class and id attributes.
 </tabs>
 
+=== Inline tab contents ===
 <tabs container="border-color:red;">
 This is an <tab index="1" name="happy">inline</tab> example<tab index="2" name="sad">&nbsp;of inline tabs</tab>, which <tab index="1">demonstrates</tab><tab index="2">shows</tab><tab index="3">gives you</tab> the freedom in choosing where <tab index="2">you want</tab> to place your nested tabs.
-<tab index="3" name="meh" width="200">
+<tab index="3" name="meh" width="400">
 And this part will only show for tab 3.
 
 Look, it's multiline!
@@ -40,33 +56,38 @@ This also demonstrates that tab contents use the <code>display:inline-block;</co
 This part also only shows for tab 3, but this has a ''block'' attribute that's not set to "false" or "0".
 </tab>
 
-Note that the third tab has the default tab label. This is because a tab tag without defined name was used first, and then only after that the name was defined. It is important to define the name in the first usage of the tab, because only the name assigned to the first usage will be used.
+Note that the third tab has the default tab label. This is because a tab tag without defined name attribute was used first, and then only after that the name was defined. It is important to define the name in the first usage of the tab, because only the name assigned to the first usage will be used.
 </tabs>
 
-<tab openname="Open this tab" closename="Close this tab" name="you won't see this" collapsed>
-This togglebox demonstrates the use of openname and closename attributes, and has a ''collapsed'' attribute that's not set to "false" or "0".<br/>
-It also has a defined name attribute, which is not used, since the open/closename attributes are defined.
-</tab>
-<tab name="Open/close" index="1" title="The title attribute works too." container="background:#ABCDEF;padding:0;">This togglebox has a name, container and title attribute, as well as an index attribute. The index attribute has no purpose in unnested tab tags though, so that is ignored.</tab>
-
-Here you can see an inline togglebox. <tab inline collapsed>It just shows up out of thin air!</tab> This togglebox has an ''inline'' attribute that's not set to "false" or "0".
-
+=== Predefining tabs ===
 <tabs>
-<tab name="foo"></tab>
-<tab name="bar"></tab>
+<tab name="foo" /><tab name="bar" />
 This tabsbox has a list of tabs with a name defined earlier at the top of this tab. This is useful when making templates that might want to use tabs to switch at multiple locations within its body. Referring to the tabs can then be done simply via assigning the index attribute to it.
-
 ----
-
 This text has <tab index="1">a lot of</tab><tab index="2">many</tab> switching parts, <tab index="1">which</tab><tab index="2">and that</tab> makes it <tab index="1">easier</tab><tab index="2">simpler</tab> to just use <tab index="1">the same</tab><tab index="2">identical</tab> syntax <tab index="1">everywhere</tab><tab index="2">for each tab</tab>.
 </tabs>
 
-<tab name="{{#if:1||No #ifs in the attributes}}">This togglebox's contents do {{#if:1||not}} allow parser functions like <code>#if:</code> to be used</tab>
+== Further tabbox info ==
 
+=== Parser function support ===
+<tab name="{{#if:1||Nope}}">This togglebox's contents do {{#if:1||not}} allow parser functions like <code>#if:</code> to be used. Parser functions don't work in attributes though. You can use the <code><nowiki>{{#tag:tab|}}</nowiki></code> syntax to do this though.</tab>
+
+=== Tabbox without tabs ===
 <tabs>
 This tabs tag is left without any &lt;tab&gt; tags in it. No tabs will be rendered, but the styling of the tab content will remain.
 </tabs>
 
+=== Defining and referencing multiple tabs ===
+<tabs>
+<tab index="4,5" name="sit,amet"/>
+<tab index="1,2" name="lorem,ipsum">This part shows with tabs 1 and 2 only.</tab> <tab index="2,3" name="dolor">While this shows for 2 and 3 only.</tab>
+
+<tab index="4">And this tab was defined together with tab 5 ("amet") in a self-closing multiple-index tab tag.</tab><tab index="5">Those who read the contents of tab 4 will know what this tab does.</tab>
+</tabs>
+
+== Nesting tags ==
+
+=== Tabboxes inside toggleboxes ===
 <tab>
 This is an example of a <code>&lt;tabs&gt;</code> tag nested inside a <code>&lt;tab&gt;</code> tag.
 
@@ -76,14 +97,30 @@ This is an example of a <code>&lt;tabs&gt;</code> tag nested inside a <code>&lt;
 </tabs>
 </tab>
 
+=== Toggleboxes inside tabboxes ===
 <tabs>
 <tab>
 This is a test of a <code>&lt;tab&gt;</code> tag within another <code>&lt;tab&gt;</code> tag within a <code>&lt;tabs&gt;</code> tag: {{#tag:tab|But you won't see this until you open it|collapsed=true}}
 </tab>
+<tab>
+So that does work, but you do need to use <code><nowiki>{{#tag:tab|}}</nowiki></code> instead of the normal <code>&lt;tab&gt;</code> when working with nested tags.
+</tab>
 </tabs>
 
+=== Tabboxes inside tabboxes ===
 <tabs>
 {{#tag:tab|
-{{#tag:tabs|<tab>If for some reason someone thinks he's funny by nesting 2 <code>&lt;tabs&gt;</code> tags within each other, this will happen.</tab>}}
+{{#tag:tabs|
+<tab>Nesting 2 <code>&lt;tabs&gt;</code> tags inside eachother won't work. This messes up the parser, and you'd get a result like this.</tab>
+<tab>and this is the second tab</tab>
 }}
+}}
+</tabs>
+
+== Dropdowns ==
+
+<tabs dropdown>
+<tab>item 1</tab>
+<tab>item 2</tab>
+<tab>item 3</tab>
 </tabs>

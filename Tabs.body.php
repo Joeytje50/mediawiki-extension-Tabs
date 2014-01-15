@@ -65,7 +65,7 @@ class Tabs {
 		++$parser->tabsData['tabCount'];
 		$names = &$parser->tabsData['tabNames'];
 		$nested = $parser->tabsData['nested'];
-		if (isset($attr['name']) $attr['name'] = trim(htmlspecialchars($attr['name'])); // making the name attr safe to use
+		if (isset($attr['name'])) $attr['name'] = trim(htmlspecialchars($attr['name'])); // making the name attr safe to use
 		// Default value for the tab's given index: index attribute's value, or else the index of the tab with the same name as name attribute, or else the tab index
 		if (!$nested) {
 			$index = 0; // indices do nothing for non-nested tabs, so don't even bother doing the computations.

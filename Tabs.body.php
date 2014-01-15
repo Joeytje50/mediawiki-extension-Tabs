@@ -65,6 +65,7 @@ class Tabs {
 		++$parser->tabsData['tabCount'];
 		$names = &$parser->tabsData['tabNames'];
 		$nested = $parser->tabsData['nested'];
+		if (isset($attr['name']) $attr['name'] = trim(htmlspecialchars($attr['name'])); // making the name attr safe to use
 		// Default value for the tab's given index: index attribute's value, or else the index of the tab with the same name as name attribute, or else the tab index
 		if (!$nested) {
 			$index = 0; // indices do nothing for non-nested tabs, so don't even bother doing the computations.
@@ -107,7 +108,7 @@ class Tabs {
 			$name = array();
 			$n = 0;
 			foreach ($index as $i) { // this loop basically does the same as what follows in its "parent" if-else block, but for each item in $index.
-				$explname = isset($attr['name']) && trim($attr['name']) ? explode(',', $attr['name']) : array();
+				$explname = isset($attr['name']) && $attr['name'] ? explode(',', $attr['name']) : array();
 				if (isset($names[$i-1]))
 					$name[] = $names[$i-1];
 				else // Note: only increment $n if the name is not already defined. Only unnamed indices will get a name attached to them.
@@ -116,7 +117,7 @@ class Tabs {
 		} elseif (isset($names[$index-1])) // if array $names already has a name defined at position $index, use that.
 			$name = $names[$index-1]; // minus 1 because tabs are 1-based, arrays 0-based.
 		else // otherwise, use the entered name, or the $index with a "Tab " prefix if it is not defined or empty.
-			$name = trim(isset($attr['name']) && trim($attr['name']) ? $attr['name'] : wfMessage('tabs-tab-label-placeholder', $index));
+			$name = trim(isset($attr['name']) && $attr['name'] ? $attr['name'] : wfMessage('tabs-tab-label-placeholder', $index));
 
 		if (!$nested) { // This runs when the tab is not nested inside a <tabs> tag.
 			$nameAttrs = array(
@@ -147,9 +148,9 @@ class Tabs {
 			$inline = isset($attr['inline']) ? ' tabs-inline' : '';
 			$label = "<input class=\"tabs-input\" form=\"tabs-inputform\" type=\"checkbox\" id=\"$id\"$checked/><label class=\"tabs-label\" for=\"$id\"><span class=\"tabs-open\">$openname</span><span class=\"tabs-close\">$closename</span></label>";
 			$attr['class'] = "tabs tabs-togglebox$inline ".$attr['class'];
-			$attrStr = $this->getSafeAttrs($attr);
+			$containAttrStr = $this->getSafeAttrs($attr);
 			$container = array(
-				"<div$attrStr><div class=\"tabs-container\">$label",
+				"<div$containAttrStr><div class=\"tabs-container\">$label",
 				'</div></div>'
 			);
 			$containerStyle = '';

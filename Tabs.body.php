@@ -25,12 +25,10 @@
 
 /*Possible features to add:
  * Dropdown menus with :hover and button:focus
- * Possibility of showing <tab> on multiple indices, for things like <t i="1,2">foo <t i="1">bar</t><t i="2">baz</t></t><t i="3">quux</t>
- *		do this by just adding both .tab-content-1 and .tab-content-2 to the tab
  * Use of a parser-function alternative for the <tab> tag: {{#tab:a|b|c|d}}, would be useful for inline things
  */
 
-class Tabs {	
+class Tabs {
 	/**
 	 * Initiate the tags
 	 * @param Parser &$parser
@@ -45,7 +43,7 @@ class Tabs {
 			'nested' => false, // Keeps track of whether the <tab> is nested within a <tabs> or not.
 			'tabNames' => array(), // Contains a list of the previously used tab names in that scope. 
 			'labels' => array(), // Lists the labels that need to be made within <tabs>. Example: array(1 => 'Tab 1', 2 => 'some tab label');
-			'dropdown' => false // Used in combination with 'nested'; keeps track of whether the <tab> is nested inside a dropdown.
+			//'dropdown' => false // Used in combination with 'nested'; keeps track of whether the <tab> is nested inside a dropdown.
 		);
 		$parser->setHook( 'tab', array( new self(), 'renderTab' ) );
 		$parser->setHook( 'tabs', array( new self(), 'renderTabs' ) );
@@ -70,18 +68,7 @@ class Tabs {
 		if (!$nested) {
 			$index = 0; // indices do nothing for non-nested tabs, so don't even bother doing the computations.
 		} elseif (isset($attr['index']) && intval($attr['index']) <= count($names)) {
-			$exploded = explode(',', $attr['index']);
-			if (count($exploded) === 1) { // if the index parameter is simply a single index
-				$index = intval($attr['index']); // if the index is given, and it isn't greater than the current index + 1.
-			} else { // if the index parameter contains a comma seperated list of indices.
-				$index = array();
-				foreach ($exploded as $i) {
-					if (isset($names[intval($i)])) { // Only if the index already exists, multiple input selection is allowed.
-						$index[] = intval($i);
-					}
-				}
-				if (count($index) === 0) $index = intval($attr['index']); // Change to the first index given, if none of the entered indices already exist.
-			}
+			$index = intval($attr['index']); // if the index is given, and it isn't greater than the current index + 1.
 		} elseif (isset($attr['name']) && array_search($attr['name'], $names) !== false)
 			$index = array_search($attr['name'], $names) ; // if index is not defined, but the name is, use the index of the tabname.
 		else {
@@ -89,14 +76,8 @@ class Tabs {
 		}
 		
 		$classPrefix = '';
-		if ($nested && gettype($index) === 'integer') // Note: This is defined seperately for toggleboxes, because of the different classes required.
+		if ($nested) // Note: This is defined seperately for toggleboxes, because of the different classes required.
 			$classPrefix .= "tabs-content tabs-content-$index";
-		elseif ($nested) {
-			$classPrefix .= 'tabs-content';
-			foreach ($index as $i) {
-				$classPrefix .= " tabs-content-$i"; // Having multiple indices associated with the content makes it show for multiple tabs.
-			}
-		}
 		
 		if (!isset($attr['class']))
 			$attr['class'] = $classPrefix; // only the prefix if no classes have been defined
@@ -104,17 +85,7 @@ class Tabs {
 			$attr['class'] = trim("$classPrefix ".htmlspecialchars($attr['class']));
 		
 		//TODO: Also needs to be able to take it when fewer indices than names are defined, or even no index is defined.
-		if (gettype($index) === 'array') {
-			$name = array();
-			$n = 0;
-			foreach ($index as $i) { // this loop basically does the same as what follows in its "parent" if-else block, but for each item in $index.
-				$explname = isset($attr['name']) && $attr['name'] ? explode(',', $attr['name']) : array();
-				if (isset($names[$i-1]))
-					$name[] = $names[$i-1];
-				else // Note: only increment $n if the name is not already defined. Only unnamed indices will get a name attached to them.
-					$name[] = isset($explname[$n]) && trim($explname[$n]) ? trim($explname[$n++]) : wgMessage('tabs-tab-label-placeholder', $i);
-			}
-		} elseif (isset($names[$index-1])) // if array $names already has a name defined at position $index, use that.
+		if (isset($names[$index-1])) // if array $names already has a name defined at position $index, use that.
 			$name = $names[$index-1]; // minus 1 because tabs are 1-based, arrays 0-based.
 		else // otherwise, use the entered name, or the $index with a "Tab " prefix if it is not defined or empty.
 			$name = trim(isset($attr['name']) && $attr['name'] ? $attr['name'] : wfMessage('tabs-tab-label-placeholder', $index));
@@ -158,12 +129,7 @@ class Tabs {
 			$attrStr = " class=\"tabs-content\" style=\"$containerStyle\""; //the attrStr is used in the outer div, so only the containerStyle should be applied to the content div.
 		} else { // this runs when the tab is nested inside a <tabs> tag.
 			$container = array('', '');
-			if (gettype($name) === 'array') {
-				foreach ($name as $n) {
-					if (array_search($n, $names) === fase)
-						$names[] = $name;
-				}
-			} elseif (array_search($name, $names) === false) // append name if it's not already in the list.
+			if (array_search($name, $names) === false) // append name if it's not already in the list.
 				$names[] = $name;
 			
 			if (isset($attr['inline']))

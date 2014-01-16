@@ -49,6 +49,7 @@ body:not(oldbrowser) #tabs-inputform {font-family:serif !important;}
 	border-radius:7px 7px 0 0;
 	position:relative;
 	display:inline-block;
+	vertical-align:bottom;
 }
 .tabs-container, .tabs-label {border:1px solid #AAA;}
 .tabs-inline {display:inline-block;}

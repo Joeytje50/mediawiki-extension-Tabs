@@ -64,7 +64,11 @@ Note that the third tab has the default tab label. This is because a tab tag wit
 <tab name="foo" /><tab name="bar" />
 This tabsbox has a list of tabs with a name defined earlier at the top of this tab. This is useful when making templates that might want to use tabs to switch at multiple locations within its body. Referring to the tabs can then be done simply via assigning the index attribute to it.
 ----
-This text has <tab index="1">a lot of</tab><tab index="2">many</tab> switching parts, <tab index="1">which</tab><tab index="2">and that</tab> makes it <tab index="1">easier</tab><tab index="2">simpler</tab> to just use <tab index="1">the same</tab><tab index="2">identical</tab> syntax <tab index="1">everywhere</tab><tab index="2">for each tab</tab>.
+This text has {{#tab:foo,bar|a lot of|many}} switching parts, {{#tab: , |which|and that}} makes it {{#tab:|
+
+easier|
+
+simpler}} to just use {{#tab:foo, bar, baz, quux|the same|identical|}} syntax {{#tab:1, 2|everywhere|for each tab}}.
 </tabs>
 
 == Further tabbox info ==
@@ -75,14 +79,6 @@ This text has <tab index="1">a lot of</tab><tab index="2">many</tab> switching p
 === Tabbox without tabs ===
 <tabs>
 This tabs tag is left without any &lt;tab&gt; tags in it. No tabs will be rendered, but the styling of the tab content will remain.
-</tabs>
-
-=== Defining and referencing multiple tabs ===
-<tabs>
-<tab index="4,5" name="sit,amet"/>
-<tab index="1,2" name="lorem,ipsum">This part shows with tabs 1 and 2 only.</tab> <tab index="2,3" name="dolor">While this shows for 2 and 3 only.</tab>
-
-<tab index="4">And this tab was defined together with tab 5 ("amet") in a self-closing multiple-index tab tag.</tab><tab index="5">Those who read the contents of tab 4 will know what this tab does.</tab>
 </tabs>
 
 == Nesting tags ==
@@ -115,12 +111,4 @@ So that does work, but you do need to use <code><nowiki>{{#tag:tab|}}</nowiki></
 <tab>and this is the second tab</tab>
 }}
 }}
-</tabs>
-
-== Dropdowns ==
-
-<tabs dropdown>
-<tab>item 1</tab>
-<tab>item 2</tab>
-<tab>item 3</tab>
 </tabs>

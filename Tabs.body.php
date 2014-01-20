@@ -25,12 +25,12 @@
 
 /*Possible features to add:
  * Dropdown menus with :hover and button:focus
- * Use of a parser-function alternative for the <tab> tag: {{#tab:a|b|c|d}}, would be useful for inline things
+ * scroll down to selected ID in url
  */
 
 class Tabs {
 	/**
-	 * Initiate the tags
+	 * Initiate the tags and parser function
 	 * @param Parser &$parser
 	 * @return boolean true
 	 */
@@ -43,10 +43,11 @@ class Tabs {
 			'nested' => false, // Keeps track of whether the <tab> is nested within a <tabs> or not.
 			'tabNames' => array(), // Contains a list of the previously used tab names in that scope. 
 			'labels' => array(), // Lists the labels that need to be made within <tabs>. Example: array(1 => 'Tab 1', 2 => 'some tab label');
-			//'dropdown' => false // Used in combination with 'nested'; keeps track of whether the <tab> is nested inside a dropdown.
+			//'dropdown' => false, // Used in combination with 'nested'; keeps track of whether the <tab> is nested inside a dropdown.
 		);
-		$parser->setHook( 'tab', array( new self(), 'renderTab' ) );
-		$parser->setHook( 'tabs', array( new self(), 'renderTabs' ) );
+		$parser->setHook('tab', array(new self(), 'renderTab'));
+		$parser->setHook('tabs', array(new self(), 'renderTabs'));
+		$parser->setFunctionHook('tab', array(new self(), 'renderPf'));
 		return true;
 	}
 	
@@ -70,7 +71,7 @@ class Tabs {
 		} elseif (isset($attr['index']) && intval($attr['index']) <= count($names)) {
 			$index = intval($attr['index']); // if the index is given, and it isn't greater than the current index + 1.
 		} elseif (isset($attr['name']) && array_search($attr['name'], $names) !== false)
-			$index = array_search($attr['name'], $names) ; // if index is not defined, but the name is, use the index of the tabname.
+			$index = array_search($attr['name'], $names)+1; // if index is not defined, but the name is, use the index of the tabname.
 		else {
 			$index = count($names)+1; // index of this tab in this scope. Plus one because tabs are 1-based, arrays are 0-based.
 		}
@@ -199,7 +200,32 @@ class Tabs {
 		
 		return "$form<div$attrStr>$labels<div class=\"tabs-container\" style=\"$containerStyle\">$newstr</div></div>";
 	}
-		
+	
+	/**
+	 * Parser function for simpler inline tab syntax
+	 * @param Parser $parser
+	 * @param string $index A comma-seperated list of tab names or indices. Integers will always be interpreted as indices.
+	 * @return string A converted list of <tab> tags, further to be processed by the parser.
+	 */
+	public function renderPf($parser, $index) {
+		$args = func_num_args();
+		$index = explode(',', $index);
+		$output = '';
+		for ($i = 1; $i+1 < $args; $i++) {// start with 1, since that'll be the default index="" for the first tab.
+			$val = func_get_arg($i+1);// arg 0 will be $parser, arg 1 will be the list of names/indices. Start fetching arguments with arg 2.
+			if (!trim($val)) continue;// only add tab if the contents are not just whitespace. This can be used to skip tabs of indices in between.
+			$index_i = isset($index[$i-1]) ? trim($index[$i-1]) : '';
+			if (preg_match("/^\d+$/",$index_i) && intval($index_i) > 0) //only assign an index if the attribute is just digits
+				$attr = "index=\"$index_i\"";
+			elseif ($index_i) // only assign a name if the name attribute isn't just whitespace
+				$attr = "name=\"$index_i\"";
+			else // Default: fallback to the current index of the parameter within this parser function
+				$attr = "index=\"$i\"";
+			$output .= "<tab $attr>$val</tab>";
+		}
+		return array( $output, 'noparse' => false );
+	}
+	
 	/**
 	 * Template for the tab label
 	 * @param int $tabN The index of the individual tab.

@@ -17,6 +17,9 @@ $messages['en'] = array(
 	'tabs-toggle-open-placeholder' => 'Show contents',
 	'tabs-toggle-close-placeholder' => 'Hide contents',
 );
+$magicWords['en'] = array(
+	'tab' => array(0, 'tab'),
+);
 
 /** Dutch (Nederlands)
  * @author Pim (Joeytje50)

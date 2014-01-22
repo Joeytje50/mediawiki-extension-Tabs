@@ -28,7 +28,7 @@ $wgExtensionCredits['parserhook'][] = array(
 	'path'           => __FILE__,
 	'name'           => 'Tabs',
 	'author'         => 'Joeytje50',
-	'url'            => '',
+	'url'            => 'https://www.mediawiki.org/wiki/Extension:Tabs',
 	'descriptionmsg' => 'tabs-desc',
 );
 

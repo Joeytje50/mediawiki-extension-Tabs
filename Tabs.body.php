@@ -85,11 +85,10 @@ class Tabs {
 		else
 			$attr['class'] = trim("$classPrefix ".htmlspecialchars($attr['class']));
 		
-		//TODO: Also needs to be able to take it when fewer indices than names are defined, or even no index is defined.
 		if (isset($names[$index-1])) // if array $names already has a name defined at position $index, use that.
 			$name = $names[$index-1]; // minus 1 because tabs are 1-based, arrays 0-based.
 		else // otherwise, use the entered name, or the $index with a "Tab " prefix if it is not defined or empty.
-			$name = trim(isset($attr['name']) && $attr['name'] ? $attr['name'] : wfMessage('tabs-tab-label-placeholder', $index));
+			$name = trim(isset($attr['name']) && $attr['name'] ? $attr['name'] : wfMessage('tabs-tab-label', $index));
 
 		if (!$nested) { // This runs when the tab is not nested inside a <tabs> tag.
 			$nameAttrs = array(
@@ -99,6 +98,8 @@ class Tabs {
 			);
 			$checked = isset($attr['collapsed']) ? '' : ' checked="checked"';
 			$id = 'Tabs_'.$parser->tabsData['tabCount'];
+			$dropdown = isset($attr['dropdown']);
+			if ($dropdown) $attr['style'] = 'width:200px' . (isset($attr['style']) ? $attr['style'] : ''); // default width. Will be overridden by styles added by the user, if set.
 			
 			/*
 			 * If only one of the openname and closename attributes is defined, the both will take the defined one's value
@@ -112,34 +113,47 @@ class Tabs {
 			elseif ($nameAttrs['closename'] && !$nameAttrs['openname']) $openname = $closename = htmlspecialchars($attr['closename']);
 			elseif (!$nameAttrs['openname'] && !$nameAttrs['closename'] && $nameAttrs['name']) $openname = $closename = htmlspecialchars($attr['name']);
 			elseif (!$nameAttrs['openname'] && !$nameAttrs['closename']) {
-				$openname = wfMessage('tabs-toggle-open-placeholder');
-				$closename = wfMessage('tabs-toggle-close-placeholder');
+				$openname = wfMessage('tabs-'.($dropdown?'dropdown-label':'toggle-open'));
+				$closename = wfMessage('tabs-'.($dropdown?'dropdown-label':'toggle-close'));
 			}
 			
 			// Check if the togglebox should be displayed inline. No need to check for the `block` attribute, since the default is display:block;
 			$inline = isset($attr['inline']) ? ' tabs-inline' : '';
-			$label = "<input class=\"tabs-input\" form=\"tabs-inputform\" type=\"checkbox\" id=\"$id\"$checked/><label class=\"tabs-label\" for=\"$id\"><span class=\"tabs-open\">$openname</span><span class=\"tabs-close\">$closename</span></label>";
-			$attr['class'] = "tabs tabs-togglebox$inline ".$attr['class'];
+			$label = "<span class=\"tabs-open\">$openname</span><span class=\"tabs-close\">$closename</span>";
+			if ($dropdown) {
+				$label = "<div class=\"tabs-label\" tabindex=\"-1\">$openname</div>"; // negative tabindex allows :focus state on click, while not allowing the element to be tabbed to.
+			} else {
+				$label = "<input class=\"tabs-input\" form=\"tabs-inputform\" type=\"checkbox\" id=\"$id\"$checked/><label class=\"tabs-label\" for=\"$id\">$label</label>";
+			}
+			$attr['class'] = "tabs tabs-togglebox$inline ".($dropdown?'tabs-dropdown ':'').$attr['class'];
 			$containAttrStr = $this->getSafeAttrs($attr);
+			if (isset($attr['bgcolor'])) {
+				// preg_split filters for ;{} characters and CSS comments, to prevent injection of any other styles than just the background-color. Only the input before the filtered characters will be included.
+				$bgcolor = preg_split('/[;{}]|\/\*/', trim(htmlspecialchars($attr['bgcolor'])))[0];
+				$background =  "data-bgcolor=\"$bgcolor\"";
+				$containAttrStr .= " $background";
+				$css = "<style type=\"text/css\">.tabs-dropdown[$background] .tabs-content, .tabs-dropdown[$background] .tabs-container, .tabs-dropdown[$background] li, .tabs-dropdown[$background] ul, .tabs-dropdown[$background] ol {background-color:$bgcolor}</style>";
+			} else $css = '';
 			$container = array(
-				"<div$containAttrStr><div class=\"tabs-container\">$label",
-				'</div></div>'
+				"<div$containAttrStr>$css<div class=\"tabs-container\">$label",
+				'</div></div>',
+				$dropdown?'menu':'div'
 			);
 			$containerStyle = '';
 			if (isset($attr['container'])) $containerStyle = htmlspecialchars($attr['container']);
-			$attrStr = " class=\"tabs-content\" style=\"$containerStyle\""; //the attrStr is used in the outer div, so only the containerStyle should be applied to the content div.
+			$attrStr = " class=\"tabs-content\" style=\"$containerStyle\"";
 		} else { // this runs when the tab is nested inside a <tabs> tag.
-			$container = array('', '');
+			$container = array('', '', 'div');
 			if (array_search($name, $names) === false) // append name if it's not already in the list.
 				$names[] = $name;
 			
-			if (isset($attr['inline']))
-				$ib = 'tabs-inline';
-			else if (isset($attr['block']))
-				$ib = 'tabs-block';
+			if (isset($attr['block']))
+				$ib = 'tabs-block ';
+			elseif (isset($attr['inline']))
+				$ib = 'tabs-inline ';
 			else
 				$ib = '';
-			$attr['class'] = "$ib ".$attr['class'];
+			$attr['class'] = $ib.$attr['class'];
 			$attrStr = $this->getSafeAttrs($attr);
 			$parser->tabsData['labels'][intval($index)] = $name; // Store the index and the name so this can be used within the <tabs> hook to create labels
 		}
@@ -148,7 +162,7 @@ class Tabs {
 		$parser->tabsData['nested'] = false; // temporary
 		$newstr = $parser->recursiveTagParse($input);
 		$parser->tabsData['nested'] = $nested; // revert
-		return $form.$container[0]."<div$attrStr>$newstr</div>".$container[1];
+		return $form.$container[0].'<'.$container[2]."$attrStr>$newstr</".$container[2].'>'.$container[1];
 	}
 	
 	/**
@@ -164,7 +178,9 @@ class Tabs {
 		$form = $parser->tabsData['tabCount'] === 0 ? $this->insertCSSJS($parser) : ''; // init styles, set the return <form> tag as $form.
 		if ($parser->tabsData['tabsCount'] === 0) $this->insertCSSJS($parser); // init styles
 		$count = ++$parser->tabsData['tabsCount'];
-		$attr['class'] = isset($attr['class']) ? 'tabs tabs-tabbox '.$attr['class'] : 'tabs tabs-tabbox';
+		$class = 'tabs tabs-tabbox';
+		if (isset($attr['plain'])) $class .= ' tabs-plain';
+		$attr['class'] = isset($attr['class']) ? "$class ".$attr['class'] : $class;
 		$attrStr = $this->getSafeAttrs($attr);
 		$containerStyle = '';
 		if (isset($attr['container'])) $containerStyle = htmlspecialchars($attr['container']);
@@ -191,6 +207,10 @@ class Tabs {
 			$indices[] = $i;
 			$labels .= $this->makeLabel($i, $n, $count);
 		}
+		if (!count($indices)) { // If no tabs have been defined, add this plain default tab.
+			$indices[] = 1;
+			$labels .= $this->makeLabel(1, 'Tab 1', $count);
+		}
 		
 		$toStyle = &$parser->tabsData['toStyle'];
 		if ($toStyle < count($indices)) { // only redefine the styles to be added to the head if we actually need to generate extra styles.
@@ -208,20 +228,33 @@ class Tabs {
 	 * @return string A converted list of <tab> tags, further to be processed by the parser.
 	 */
 	public function renderPf($parser, $index) {
-		$args = func_num_args();
 		$index = explode(',', $index);
+		$args = max(func_num_args(), count($index)+2);
+		$argcount = func_num_args();
 		$output = '';
 		for ($i = 1; $i+1 < $args; $i++) {// start with 1, since that'll be the default index="" for the first tab.
-			$val = func_get_arg($i+1);// arg 0 will be $parser, arg 1 will be the list of names/indices. Start fetching arguments with arg 2.
-			if (!trim($val)) continue;// only add tab if the contents are not just whitespace. This can be used to skip tabs of indices in between.
+			$val = $i+1 < $argcount ? func_get_arg($i+1) : ''; // arg 0 will be $parser, arg 1 will be the list of names/indices. Start fetching arguments with arg 2. Empty string if this argument is not defined.
 			$index_i = isset($index[$i-1]) ? trim($index[$i-1]) : '';
-			if (preg_match("/^\d+$/",$index_i) && intval($index_i) > 0) //only assign an index if the attribute is just digits
+			if (preg_match('/^\d+$/',$index_i) && intval($index_i) > 0) {//only assign an index if the attribute is just digits
 				$attr = "index=\"$index_i\"";
-			elseif ($index_i) // only assign a name if the name attribute isn't just whitespace
+				$isname = false;
+			} elseif ($index_i) { // only assign a name if the name attribute isn't just whitespace
 				$attr = "name=\"$index_i\"";
-			else // Default: fallback to the current index of the parameter within this parser function
+				$isname = true;
+			} else { // Default: fallback to the current index of the parameter within this parser function
 				$attr = "index=\"$i\"";
-			$output .= "<tab $attr>$val</tab>";
+				$isname = false;
+			}
+			if (preg_match('/^\$\d+$/', trim($val))) { // Copying over the value of other parameters for the syntax $n. May not contain anything other than $n in the value.
+				$ref = intval(substr(trim($val), 1));
+				if ($ref+1 < $argcount && $ref > 0) $refval = func_get_arg($ref+1); // Only do this when the referred-to value exists
+				if (trim($refval)) $val = $refval; // only if the referred-to value is not empty, assign its value to this parameter
+			}
+			if (trim($val)) { // if content is defined for this tab
+				$output .= "<tab $attr>$val</tab>";
+			} elseif ($isname) { // if no content is defined, but a name is defined. Makes it easier to define all tabs at the top.
+				$output .= "<tab $attr />";
+			} //otherwise, just don't append anything to the output.
 		}
 		return array( $output, 'noparse' => false );
 	}
@@ -235,7 +268,7 @@ class Tabs {
 	 */
 	public function makeLabel($tabN, $label, $tagN) {
 		$label = htmlspecialchars($label);
-		return "<input type=\"radio\" form=\"tabs-inputform\" id=\"tabs-input-$tagN-$tabN\" name=\"tabs-$tagN\" class=\"tabs-input tabs-input-$tabN\"/><label class=\"tabs-label\" for=\"tabs-input-$tagN-$tabN\" data-tabpos=\"$tabN\">$label</label>";
+		return "<input type=\"radio\" form=\"tabs-inputform\" id=\"tabs-input-$tagN-$tabN\" name=\"tabs-$tagN\" class=\"tabs-input tabs-input-$tabN\"/><label class=\"tabs-label\" for=\"tabs-input-$tagN-$tabN\" data-tabpos=\"$tabN\">$label</label><wbr/>";
 	}
 	
 	/**
@@ -247,19 +280,6 @@ class Tabs {
 	public function getSafeAttrs($attr, &$safe = array()) {
 		$safeAttrs = array('class', 'id', 'title', 'style');
 		$attrStr = '';
-		// Apply width style if width attribute is defined, and no styles are defined OR width is not defined in the styles.
-		$widhigh = array('width', 'height');
-		foreach ($widhigh as $i) {
-			$setStyles = isset($attr['style']) ? $attr['style'] : false;
-			// If the attribute 'width' or 'height' is defined, AND either no styles have yet been set, OR those set stiles have no defined 'width' or 'height'.
-			if (isset($attr[$i]) && (!$setStyles || !preg_match("/$i\s*:/", $setStyles))) {
-				$whAttr = $attr[$i];
-				$whAttr .= preg_match("/^\d+$/", $whAttr) ? 'px' : ''; // append px when no unit is defined
-				// insert the 'width' or 'height' style at the start of the styles to prevent having to insert a semicolon at the end of the current style list, and possibly getting double semicolons.
-				$attr['style'] = "$i: $whAttr; $setStyles";
-			}
-		}
-
 		foreach ($safeAttrs as $i) {
 			if (isset($attr[$i])) {
 				$safe[$i] = htmlspecialchars(trim($attr[$i]));
@@ -284,18 +304,24 @@ class Tabs {
 			$parserOut->addModuleScripts('ext.tabs');
 			global $wgOut;
 			// this form is here to use for the form="" attribute in the inputs, for semantically correct usage of the <input> tag outside a <form> tag.
-			return '<form id="tabs-inputform" action="#"></form>';
+			return '<form id="tabs-inputform" class="tabs tabs-inputform" action="#"></form>';
 		}
 		return '';
 	}
 
 	public function createDynamicCss(&$parser) {
 		$css = '';
-		for ($i=1;$i<=$parser->tabsData['toStyle'];$i++) {
-			$css .= ".tabs-input-$i:checked ~ .tabs-container .tabs-content-$i, .tabs-input-$i:checked ~ .tabs-container .tabs-content-$i,\n";
+		$class = array('', '.tabs-inline', '.tabs-block');
+		$style = array('inline-block', 'inline', 'block');
+		foreach ($class as $n => $c) {
+			for ($i=1;$i<=$parser->tabsData['toStyle'];$i++) {
+				$css .= ".tabs-input-$i:checked ~ .tabs-container $c.tabs-content-$i,\n";
+			}
+			$css .= ".tabs-input-0:checked ~ .tabs-container $c.tabs-content-1 {display:".$style[$n].";}\n";
 		}
-		$css .= '.tabs-input-0:checked ~ .tabs-container .tabs-content-1, .tabs-input-0:checked ~ .tabs-container .tabs-content-1 {display:inline-block;}';
-		$css .= "\n".str_replace(':checked','.checked', $css); // This is for the non-:checked browsers that use JS
+		$css .= "/* The same styles, but with .checked instead of :checked, for browsers that rely on the JavaScript fallback */\n".
+			str_replace(':checked','.checked', $css);
+		$css .= ".tabs-dropdown .tabs-content, .tabs-dropdown .tabs-container, .tabs-dropdown li, .tabs-dropdown ul, .tabs-dropdown ol {background-color:".wfMessage('tabs-dropdown-bgcolor').'}';
 		return "<style type=\"text/css\" id=\"tabs-dynamic-styles\">/*<![CDATA[*/\n/* Dynamically generated tabs styles */\n$css\n/*]]>*/</style>";
 	}
 }

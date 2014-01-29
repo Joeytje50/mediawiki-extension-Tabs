@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of the Tabs Extension to MediaWiki
- * http://example.com
+ * https://www.mediawiki.org/wiki/Extension:Tabs
  *
  * @author Pim (Joeytje50)
  *

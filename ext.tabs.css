@@ -224,7 +224,7 @@ body:not(oldbrowser) #tabs-inputform {font-family:serif !important;}
 .tabs-label:active, .tabs-label:focus {
 	background-color:#CCE;
 }
-.tabs-tabbox > .tabs-input:checked + .tabs-label, 
+.tabs-tabbox > .tabs-input:checked + .tabs-label,
 .tabs-input-0:checked + .tabs-input-1 + .tabs-label {
 	z-index:2;
 	background-color:#FFF;
@@ -276,3 +276,28 @@ body:not(oldbrowser) #tabs-inputform {font-family:serif !important;}
 .tabs-togglebox >*> .tabs-input.checked ~ .tabs-content {display:block;}
 .tabs-togglebox >*> .tabs-input.checked + * .tabs-close {display:inline;}
 .tabs-togglebox >*> .tabs-input.checked + * .tabs-open {display:none;}
+
+/**
+ * The following is an alternative toggle system for Android Browser using <detail> and <summary> tags
+ * which is based on http://stackoverflow.com/q/21357641/1256925
+ */
+
+summary::-webkit-details-marker {
+	display:none;
+}
+.tabs-togglebox details.tabs-container:not([open]) .tabs-content {
+	display:none;
+}
+.tabs-togglebox details.tabs-container[open] .tabs-content {
+	display:block;
+}
+
+.tabs-togglebox details.tabs-container:not([open]) .tabs-label {
+	border-radius: 7px;
+}
+.tabs-togglebox details.tabs-container[open] .tabs-label {
+	border-radius: 7px 7px 0 0;
+}
+
+.tabs-togglebox details.tabs-container[open] .tabs-close {display:inline;}
+.tabs-togglebox details.tabs-container[open] .tabs-open {display:none;}

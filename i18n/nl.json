@@ -1,0 +1,12 @@
+{
+    "@metadata": {
+        "authors": [
+            "Pim (Joeytje50)"
+        ]
+    },
+    "tabs-desc": "Voegt <code>&lt;tabs&gt;</code>, <code>&lt;tab&gt;</code> and <code>&lt;tabdef&gt;</code> toe voor opmaak met tabbladen.",
+    "tabs-tab-label": "Tab $1",
+    "tabs-toggle-open": "Toon inhoud",
+    "tabs-toggle-close": "Verberg inhoud",
+	"tabs-dropdown-label": "Toon uitklapmenu",
+}

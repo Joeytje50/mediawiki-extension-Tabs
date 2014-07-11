@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of the Tabs Extension to MediaWiki
- * https://www.mediawiki.org/wiki/Extension:Tabs
+ * http://example.com
  *
  * @author Pim (Joeytje50)
  *
@@ -20,7 +20,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  * http://www.gnu.org/copyleft/gpl.html
- * 
+ *
  * @file
  */
 
@@ -35,14 +35,17 @@ $wgExtensionCredits['parserhook'][] = array(
 $dir = __DIR__ . '/';
 $wgAutoloadClasses['Tabs'] = $dir . 'Tabs.body.php';
 $wgExtensionMessagesFiles['Tabs'] =  $dir . 'Tabs.i18n.php';
+$wgExtensionMessagesFiles['TabsMagic'] =  $dir . 'Tabs.i18n.magic.php';
 $wgHooks['ParserFirstCallInit'][] = 'Tabs::init';
 $wgResourceModules['ext.tabs'] = array(
 	'scripts' => 'ext.tabs.js',
 	'styles' => 'ext.tabs.css',
 	'messages' => array(
-		'tabs-tab-label-placeholder',
-		'tabs-toggle-open-placeholder',
-		'tabs-toggle-close-placeholder',
+		'tabs-tab-label',
+		'tabs-toggle-open',
+		'tabs-toggle-close',
+		'tabs-dropdown-label',
+		'tabs-dropdown-bgcolor',
 	),
 	'localBasePath' => __DIR__,
 	'remoteExtPath' => 'Tabs',

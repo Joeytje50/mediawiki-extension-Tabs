@@ -23,11 +23,6 @@
  * @file
  */
 
-/*Possible features to add:
- * Dropdown menus with :hover and button:focus
- * scroll down to selected ID in url
- */
-
 class Tabs {
 	/**
 	 * Initiate the tags and parser function
@@ -41,7 +36,7 @@ class Tabs {
 			'addedStatics' => false, // checks if static styles have been added, so that it isn't done multiple times.
 			'toStyle' => 0, // Counts the maximum amount of <tab> tags used within a single <tabs> tag. Used to determine the amount of lines to be added to the dynamic stylesheet.
 			'nested' => false, // Keeps track of whether the <tab> is nested within a <tabs> or not.
-			'tabNames' => array(), // Contains a list of the previously used tab names in that scope. 
+			'tabNames' => array(), // Contains a list of the previously used tab names in that scope.
 			'labels' => array(), // Lists the labels that need to be made within <tabs>. Example: array(1 => 'Tab 1', 2 => 'some tab label');
 			//'dropdown' => false, // Used in combination with 'nested'; keeps track of whether the <tab> is nested inside a dropdown.
 		);
@@ -99,7 +94,7 @@ class Tabs {
 			$checked = isset($attr['collapsed']) ? '' : ' checked="checked"';
 			$id = 'Tabs_'.$parser->tabsData['tabCount'];
 			$dropdown = isset($attr['dropdown']);
-			if ($dropdown) $attr['style'] = 'width:200px' . (isset($attr['style']) ? $attr['style'] : ''); // default width. Will be overridden by styles added by the user, if set.
+			if ($dropdown) $attr['style'] = 'width:200px;' . (isset($attr['style']) ? $attr['style'] : ''); // default width. Will be overridden by styles added by the user, if set.
 			
 			/*
 			 * If only one of the openname and closename attributes is defined, the both will take the defined one's value
@@ -211,7 +206,7 @@ class Tabs {
 			$indices[] = 1;
 			$labels .= $this->makeLabel(1, 'Tab 1', $count);
 		}
-		
+
 		$toStyle = &$parser->tabsData['toStyle'];
 		if ($toStyle < count($indices)) { // only redefine the styles to be added to the head if we actually need to generate extra styles.
 			$toStyle = count($indices);
@@ -220,7 +215,7 @@ class Tabs {
 		
 		return "$form<div$attrStr>$labels<div class=\"tabs-container\" style=\"$containerStyle\">$newstr</div></div>";
 	}
-	
+
 	/**
 	 * Parser function for simpler inline tab syntax
 	 * @param Parser $parser

@@ -11,13 +11,13 @@ $(function() {
 				$(this).siblings('.checked').removeClass('checked'); // Uncheck all currently checked siblings
 				$(this).addClass('checked'); // and do check this box
 				$(this).parents('.tabs').toggleClass('tabs').toggleClass('tabs'); // remove and readd class to recalculate styles for its children.
-				// Credit: Fabrício Matté @ http://stackoverflow.com/a/21122724/1256925
+				// Credit: FabrÃ­cio MattÃ© @ http://stackoverflow.com/a/21122724/1256925
 			});
 			moveToHash();
 		});
 	} else
 		$(moveToHash);
-	
+
 	/**
 	 * Imitates the normal feature in browsers to scroll to an id that has the same id as the url fragment/hash.
 	 * This makes it unnecessary to use actual ids on the tabs, which could cause the same id to occur twice in the same document.
@@ -34,5 +34,30 @@ $(function() {
 			document.documentElement.scrollTop = this.offsetTop;
 			return false; // stop the $.each() function after the first match.
 		});
+	}
+
+	/*
+	 * System to fix toggle boxes in Android Browser
+	 * Browser detection based on http://stackoverflow.com/a/15591516/1256925
+	 * Idea for the use of <detail> and <summary> based on http://stackoverflow.com/q/21357641/1256925
+	 */
+	var nua = navigator.userAgent;
+	var is_android = ((nua.indexOf('Mozilla/5.0') > -1 && nua.indexOf('Android ') > -1 && nua.indexOf('AppleWebKit') > -1) && !(nua.indexOf('Chrome') > -1));
+	if (is_android) {
+		function replaces() { //General replacement function for both tags
+			var tagName = $(this).is('.tabs-container') ? 'details' : 'summary'; //determine the required tag name
+			var $newNode = $('<'+tagName+'/>').html($(this).html());
+			for (var i=0;i<this.attributes.length;i++) { //copy all attributes from the original element
+				if (this.attributes[i].nodeName === 'for') continue; //don't copy the label's for="" attribute, since it's not needed here.
+				$newNode.attr(this.attributes[i].nodeName, this.attributes[i].value);
+			}
+			return $newNode;
+		}
+		$('.tabs-togglebox .tabs-container').not('.tabs-dropdown .tabs-container').replaceWith(replaces); //do not select dropdowns, which already work in Android
+		$('.tabs-togglebox .tabs-label').not('.tabs-dropdown .tabs-label').each(function() {
+			if ($(this).prevAll('input').prop('checked')) { //preserve open state of the toggle box
+				$(this).parents('details').prop('open', true);
+			}
+		}).replaceWith(replaces); //Run this *after* the .tabs-container has finished, otherwise all .tabs-label elements will be skipped.
 	}
 });

@@ -224,7 +224,7 @@ These have the following effects:
 #*If the entered value contains only whitespace or is left empty, the index of that tab within the parser function is assumed.
 #No indices or names are defined here, so the indices of the tabs within the parser functions are automatically assigned as index.
 #The second tab will automatcally get <code>index="1"</code>, and the third tab will have no content:
-#*If the third tab has a name defined in the list of names, then a [[#Self-closing tabs|self-closing tag.
+#*If the third tab has a name defined in the list of names, then a [[#Self-closing tabs|self-closing tag]].
 #*If the third tab has an index defined, this tab is skipped, and no output is generated for this tab.
 #This will define three tabs, "name 1", "name 2" and "name 3" using the [[#Self-closing tabs|self-closing syntax]].
 #When the content of a tab is <code>$n</code> (where <code>n</code> is the place of the tab in the parser function), the contents of that tab are copied over to the tab that has <code>$n</code> in it. This only works if the tab contains nothing other than <code>$n</code>, and the parser function's <code>n</code>th parameter is defined and not empty.

@@ -62,7 +62,7 @@ body:not(oldbrowser) #tabs-inputform {font-family:serif !important;}
 
 /**
  * The following is an alternative to the non-IE<9 `:first-of-type` and selects the first tabs-label,
- *     since only the first label is positioned behind 2 inputs in a row.
+ * since only the first label is positioned behind 2 inputs in a row.
  */
 .tabs-tabbox > .tabs-input+ .tabs-input+ .tabs-label {margin-left:10px;}
 .tabs-tabbox > .tabs-container {

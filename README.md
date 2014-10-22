@@ -2,6 +2,8 @@ This page contains documentation and demos for the tabs extension.
 Paste this text on a wiki article with the tabs extension installed
 to view these demos.
 
+For general usage info, see https://www.mediawiki.org/wiki/Extension:Tabs/Usage
+
 -----
 
 {{TOC|limit=4}}

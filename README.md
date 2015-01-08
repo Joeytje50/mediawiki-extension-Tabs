@@ -28,7 +28,7 @@ It also has the following internationalisation messages associated with it:
 
 '''Note:''' - This extension uses the <code>bgcolor</code> attribute for dropdown menus. This is in no way meant as encouragement for the use of this deprecated attribute anywhere other than this tag.
 
-For both the <code>&lt;tab&gt;</code> and <code>&lt;tab&gt;</code> tags, parser functions ''can'' be used within the content of the tag, but ''not'' in the attributes. To use parser functions within the attributes, the <code>#tag:tabs</code> or <code>#tag:tab</code> parser functions should be used. The [[#Parser function|<code>#tab</code> parser function]] will also work, but since the only attributes it can define are the <code>index</code> and <code>name</code> attributes, these don't allow complete support.
+For both the <code>&lt;tab&gt;</code> and <code>&lt;tabs&gt;</code> tags, parser functions ''can'' be used within the content of the tag, but ''not'' in the attributes. To use parser functions within the attributes, the <code>#tag:tabs</code> or <code>#tag:tab</code> parser functions should be used. The [[#Parser function|<code>#tab</code> parser function]] will also work, but since the only attributes it can define are the <code>index</code> and <code>name</code> attributes, these don't allow complete support.
 
 For example, this will not work:
 

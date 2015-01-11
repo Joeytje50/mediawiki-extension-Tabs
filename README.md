@@ -2,8 +2,6 @@ This page contains documentation and demos for the tabs extension.
 Paste this text on a wiki article with the tabs extension installed
 to view these demos.
 
-For general usage info, see https://www.mediawiki.org/wiki/Extension:Tabs/Usage
-
 -----
 
 {{TOC|limit=4}}
@@ -45,6 +43,10 @@ But this will work:
 {{#tab:{{{2|}}}|Bar}}
 |style=color:{{#if:{{{1|}}}|green|red}} }}
 </pre>
+
+==== Hotlinking tabs ====
+
+It is possible to hotlink tabs the same way as hotlinking sections on pages. Simply put the tab label in the URL, and the page will automatically scroll to the top of the tab, and open the selected tab. This will always open only the very first tab that has the specified tab label (for example, if there are two tab boxes that both have a tab labelled "Tab 1", putting <code>#Tab_1</code> in the URL will scroll to the first one on the page). If there is already another element on the page that could be scrolled to, such as a page section, that other element will have priority, and the tab will not be focused.
 
 === Toggle box ===
 
@@ -94,7 +96,7 @@ Dropdown menus are heavily based on the code for toggle boxes, so will also rese
 
 Since dropdown menus use the <code>&lt;menu&gt;</code> tag for their content, it is permitted to use <code>&lt;li&gt;</code> tags directly within the dropdown menu's contents. Any other content is also allowed.
 
-Dropdown menus will convert all list items and links placed within to specially styled list items. The only exception is that links show as they normally do when placed within unordered lists ([http://www.mediawiki.org/wiki/Help:Lists any line starting with <code>*</code>]). This is also the only difference between ordered and unordered lists.
+Dropdown menus will convert all list items and links placed within to specially styled list items. The only exception is that links ''only'' show as they normally do when placed within unordered lists ([http://www.mediawiki.org/wiki/Help:Lists any line starting with <code>*</code>]). In ordered lists, or outside list items, they take up the full list item. This is also the only difference between ordered and unordered lists.
 
 Any nested lists will be rendered as sub-menus in the dropdown menu. Nested lists are created by starting a line with [http://www.mediawiki.org/wiki/Help:Lists multiple <code>*</code> or <code>#</code> characters]. There is one limitation with this however: Individual nested lists can not alternate between ordered and unordered lists. Seperate levels can, however. For example, this is not allowed:
 <pre>
@@ -131,7 +133,8 @@ This dropdown also has its <code>style</code> attribute set to <code>style="widt
 ===== Background-color for dropdowns =====
 
 <tab dropdown bgcolor="salmon}body{font-weight:bold;">
-*This tab has a its <code>bgcolor</code> attribute set to <code>bgcolor="salmon"</code>. Just defining a <code>background-color</code> style would not work.
+This tab has a its <code>bgcolor</code> attribute set to <code>bgcolor="salmon"</code>.
+Just defining a <code>background-color</code> style would not work.
 </tab>
 
 ===== Lists and links =====
@@ -218,24 +221,36 @@ Self-closing tabs can be used to define a list of tabs at the top of the tab men
 
 As an alternative for the tab tag, the <code><nowiki>{{#tab:}}</nowiki></code> parser function can also be used to simplify the syntax for tabs. The syntax for this parser function allows the following syntaxes:
 
-<pre>
-{{#tab:name/index 1, name/index 2, etc|content 1|content 2|etc}}
-{{#tab:|content 1|content 2|etc}}
-{{#tab:name/index 1, , name/index 3, name/index 4|content 1|content 2| |content 4}}
-{{#tab:name 1, name 2, name 3...}}
-{{#tab:name/index 1, etc|content 1|$1}}
-</pre>
-These have the following effects:
-#Each of the defined names will be set as <code>name</code> or <code>index</code> attributes, respectively.
-#*All values that are numbers only will be automatically recognised as indices. For indices, surrounding whitespace is allowed, but internal whitespace or any non-number characters such as decimal points aren't.
-#*If these condtions are not met, the entered value is interpreted as a name.
-#*If the entered value contains only whitespace or is left empty, the index of that tab within the parser function is assumed.
-#No indices or names are defined here, so the indices of the tabs within the parser functions are automatically assigned as index.
-#The second tab will automatcally get <code>index="1"</code>, and the third tab will have no content:
-#*If the third tab has a name defined in the list of names, then a [[#Self-closing tabs|self-closing tag.
-#*If the third tab has an index defined, this tab is skipped, and no output is generated for this tab.
-#This will define three tabs, "name 1", "name 2" and "name 3" using the [[#Self-closing tabs|self-closing syntax]].
-#When the content of a tab is <code>$n</code> (where <code>n</code> is the place of the tab in the parser function), the contents of that tab are copied over to the tab that has <code>$n</code> in it. This only works if the tab contains nothing other than <code>$n</code>, and the parser function's <code>n</code>th parameter is defined and not empty.
+{|class="wikitable"
+!style="width: 50%"|Code
+!style="width: 50%"|Description
+|-
+|<code style="color: green;"><nowiki>{{#tab:name1/#1, name2/#2, etc|content 1|content 2|etc}}</nowiki></code>
+|Each of the defined names will be set as <code>name</code> or <code>index</code> attributes, respectively.
+*All values that are prefixed with <code>#</code>, and are numbers only will be recognised as indices. For indices, surrounding whitespace is allowed, but internal whitespace or any non-number characters such as decimal points aren't.
+*If these condtions are not met, the entered value is interpreted as a name.
+*If the entered value contains only whitespace or is left empty, the index of that tab is automatically calculated.
+|-
+|<code style="color: green;"><nowiki>{{#tab:|content 1|content 2|etc}}</nowiki></code>
+|No indices or names are defined here, so the indices of the tabs within the parser functions are automatically assigned as index.
+|-
+|<code style="color: green;"><nowiki>{{#tab:name1/#1, , name3/#3, name4/#4|content 1|content 2| |content 4}}</nowiki></code>
+|The second tab will automatically get <code>index="2"</code>, and the third tab will have no content:
+*If the third tab has a name defined in the list of names, then it becomes a [[#Self-closing tabs|self-closing tag]].
+*If the third tab has an index defined, this tab is skipped, and no output is generated for this tab.
+|-
+|<code style="color: green;"><nowiki>{{#tab:name1, name2, name3...}}</nowiki></code>
+|This will define three tabs, "name1", "name2" and "name3" using the [[#Self-closing tabs|self-closing syntax]].
+|-
+|<code style="color: green;"><nowiki>{{#tab:#3, #5|content 3|content 5}}</nowiki></code>
+|This will add "content 3" to the rest of the contents of tab 3, and "content 5" to the rest of the content of tab 5.
+|-
+|<code style="color: green;"><nowiki>{{#tab:name1/#1, etc|content 1|$1}}</nowiki></code>
+|When the content of a tab is <code>$n</code> (where <code>n</code> is the place of the tab in the parser function), the contents of that tab are copied over to the tab that has <code>$n</code> in it. For this to work, the following conditions must be met:
+*The tab must contain nothing other than a dollar sign and a number directly after it. Surrounding whitespace is allowed.
+*The parser function's <code>n</code>th parameter must be defined. <code>n</code> may also be bigger than the current tab index (so, <code><nowiki>{{#tab:#3,#5|$2|Hi}}</nowiki></code> would put "Hi" in both tab 3 and 5).
+*The parser function's <code>n</code>th parameter must contain something other than just whitespace. Recursive references won't work, so <code><nowiki>{{#tab:|Hi|$1|$2}}</nowiki></code> will put "Hi" in tabs 1 and 2, and the literal text "$1" in tab 3.
+|}
 
 ==== Demos ====
 
@@ -264,6 +279,14 @@ This line of text will show for every tab you view. It is not placed within <cod
 <tab index="4" block>Despite fitting on the previous line, the <code>block</code> attribute forces this seperate tab to a new line</tab>
 </tabs>
 
+===== <code>plain</code> tab interfaces =====
+
+<tabs plain style="width:250px;">
+<tab>This tab interface doesn't have a box surrounding it, but just has buttons above it.</tab>
+<tab>This makes it a bit easier to customise the box</tab>
+<tab>It is also more useful for storing tabbed tables in</tab>
+</tabs>
+
 ===== Inline switching parts =====
 
 This tab menu uses the regular syntax using the <code>&lt;tab&gt;</code> tag.
@@ -273,7 +296,7 @@ This line of text contains <tab name="Exaggerating">over 9000</tab><tab name="Tr
 The switching <tab index="1">epicness</tab><tab index="2">parts</tab> are made by putting <code>&lt;tab&gt;</code> tags within the flow of the text.
 </tabs>
 ----
-This tab menu looks exactly the same, but uses the parser function <code><nowiki>{{#tab:name1, name2|content1|content2}}</nowiki></code> or <code><nowiki>{{#tab:index1, index2|content1|content2}}</nowiki></code>. This makes the code a bit shorter.
+This tab menu looks exactly the same, but uses the parser function <code><nowiki>{{#tab:name1, name2|content1|content2}}</nowiki></code> or <code><nowiki>{{#tab: #1, #2|content1|content2}}</nowiki></code>. This makes the code a bit shorter.
 
 <tabs>
 This line of text contains {{#tab:Exagerrating,Truth|over 9000|a couple of}} switching parts. The {{#tab:|very biggest|main}} part of this tab's contents is placed outside any {{#tab:|awesome}} <code>&lt;tab&gt;</code> tags.
@@ -341,6 +364,17 @@ This inner toggle box is made via the <code>&lt;tag&gt;</code> syntax.
 |dropdown=true}}
 
 ===== Toggle boxes and dropdowns in tab boxes =====
+
+If you want to place a toggle box or a dropdown inside a tab navigation, and want the toggle box to show up for every tab as opposed to just the tab it's nested in, first a parent <code>&lt;tab&gt;</code> tab must be made, with <code>index="*"</code>, so that the toggle box won't be recognised as a seperate tab content.
+
+If you want to place a toggle box or dropdown menu inside a tab menu, you can simply place a <code>&lt;tab&gt;</code> tag inside the <code>&lt;tab&gt;</code> tag that functions as a tab. This will restrict toggle boxes and dropdowns to visibility in just one tab though. So, if you want to have a toggle box or dropdown that's visible in every tab, encase it in a <code>&lt;tab&gt;</code> tag with an <code>index="*"</code> set to it.
+
+That way, the outer <code>&lt;tab&gt;</code> tag will be recognised as a tab container, and the inner one will be recognised as a toggle box or dropdown menu, as desired. The toggle box or dropdown must then also use the [[#Nested combinations|parser function syntax]].
+
+If you want the contents of the toggle box inside the tab menu to be able to change depending on the selected tab, you should use the <code>nested="true"</code> attribute on the tag. This can be done by setting the very last argument of the <code>#tab:</code> parser function or the <code>#tag:tab</code> parser function to <code>nested=true</code>.
+
+See this demo for an example of how to make this work:
+
 <tabs>
 <tab name="Toggle box">
 This first tab has a toggle box nested inside it
@@ -349,6 +383,9 @@ This first tab has a toggle box nested inside it
 <tab name="Dropdown">
 This second tab has a dropdown nested inside it
 {{#tag:tab|This dropdown is created via the <code>#tag:tab</code> parser function, since it's not possible to define attributes such as <code>dropdown</code> via the <code>#tab:</code> parser function.|dropdown=true}}
+</tab>
+<tab index="*" block>
+{{#tag:tab|This toggle box shows up inside {{#tab:|every|each of the|nested=true}} tab{{#tag:tab|s|index=2|nested=true}}, because the containing tab tag has got its index attribute set to <code>index="*"</code>. It also has a <code>block</code> attribute.|openname=Open|closename=Close}}
 </tab>
 </tabs>
 
@@ -364,7 +401,7 @@ This dropdown has a nested toggle box that has <code>inline</code> and <code>col
 *It is even possible to have a dropdown inside a list item in another dropdown box
 *{{#tag:tab|This a dropdown inside a list in the outer dropdown menu|dropdown=true}}
 *And it is even possible to have a dropdown inside sub-menus in the dropdown...
-**{{#tag:tab|It also works normally in sub-menus|dropdown=true}}
+**{{#tag:tab|It also works normally in sub-menus, although <code>style="width:186px;"</code> would be recommended. Although making the encasing <code>&lt;tab&gt;</code> wider using <code>style="width:214px;"</code> would work just as well.|dropdown=true|style=width:186px;}}
 Or if you want, you can place it outside lists too.
 {{#tag:tab|Here's a dropdown inside a dropdown, but not in any list|dropdown=true}}
 </tab>
